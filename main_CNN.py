@@ -28,9 +28,9 @@ n_test =3900 #3834 #CNN1-300: 1500
 
 CLASSES_NAMES =['Undermelt','JustRight', 'Overmelt']
 
-LOG_TRAIN_DIR = 'Result_log_15-3/data6_train'+ '_imsz_%d_bz_%d_t1_'%(IMAGE_SIZE,BATCH_SIZE)
-LOG_VAL_DIR = 'Result_log_15-3/data6_eval'+ '_imsz_%d_bz_%d_t1_'%(IMAGE_SIZE,BATCH_SIZE)
-data_dir = '../code_img2bin/data_for_CNN6-300/'
+LOG_TRAIN_DIR = 'Result_log/train'+ '_imsz_%d_bz_%d_t1_'%(IMAGE_SIZE,BATCH_SIZE)
+LOG_VAL_DIR = 'Result_log/eval'+ '_imsz_%d_bz_%d_t1_'%(IMAGE_SIZE,BATCH_SIZE)
+data_dir = '../../Data/'
 
 ## Imagenet structure
 # def inference(images):
@@ -551,7 +551,7 @@ print("Check after training:")
 # save_dir = 'C:\\Users\\bzhang25\\Google Drive\\CNN-testing\\aa'
 # scio.savemat(save_dir, {'predict':predict_all,'true':true_all})
 predict_all,true_all=evaluate_once()
-save_dir = 'C:\\Users\\Binbin\\Google Drive\\Research\\Project_Moog UB project\\code_imgeClassProb\\cnnResult_data6_testGroup6_ita6000_15-3'
+save_dir = '/Result/cnnResult_data6_testGroup6_ita6000_15-3'
 scio.savemat(save_dir, {'predict':predict_all,'true':true_all})
 
 
