@@ -1,16 +1,16 @@
 #!/bin/sh
-#SBATCH --partition=gpu
-#SBATCH --time=08:00:00
-#SBATCH --nodes=4
+#SBATCH --partition=debug
+#SBATCH --time=01:00:00
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=12
 #SBATCH --cpus-per-task=1
-#SBATCH --constraint=CPU-X5650
+#SBATCH --constraint=CPU-E5-2660
 #SBATCH --mem=48000
 # Memory per node specification is in MB. It is optional. 
 # The default limit is 3GB per core.
-#SBATCH --job-name="Run-on-GPU-12"
-#SBATCH --output=CNN_result.out
-#SBATCH --mail-user=prakharj@buffalo.edu
+#SBATCH --job-name="Run-on-GPU-12-Debug"
+#SBATCH --output=Result/CNN_result_debug.out
+#SBATCH --mail-user=bzhang25@buffalo.edu
 #SBATCH --mail-type=NONE
 #SBATCH --requeue
 #Specifies that the job will be requeued after a node failure.
@@ -25,8 +25,12 @@ echo "SLURMTMPDIR="$SLURMTMPDIR
 cd $SLURM_SUBMIT_DIR
 echo "working directory = "$SLURM_SUBMIT_DIR
 
+module load tensorflow
+module load gcc
 module list
 ulimit -s unlimited
+source activate tensorflow-py36
+
 
 echo "Starting job..."
 

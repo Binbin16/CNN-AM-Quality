@@ -1,6 +1,7 @@
 # My files
 Result/
 Result_log/
+*.out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
