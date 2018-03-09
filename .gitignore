@@ -2,6 +2,7 @@
 Result/
 Result_log/
 *.out
+*.mat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -18,9 +18,9 @@ from sklearn.metrics import confusion_matrix
 import scipy.io as scio
 #%%
 
-BATCH_SIZE = 10
+BATCH_SIZE = 50
 LEARNING_RATE = [0.0001]
-MAX_STEP = 1
+MAX_STEP = 5000
 
 IMAGE_SIZE = 300
 NUM_CLASSES = 3
@@ -29,9 +29,10 @@ n_test =3900 #3834 #CNN1-300: 1500
 CLASSES_NAMES =['Undermelt','JustRight', 'Overmelt']
  
 
-LOG_TRAIN_DIR = 'Result_log/train'+ '_imsz_%d_bz_%d_t1_'%(IMAGE_SIZE,BATCH_SIZE)
-LOG_VAL_DIR = 'Result_log/eval'+ '_imsz_%d_bz_%d_t1_'%(IMAGE_SIZE,BATCH_SIZE)
+LOG_TRAIN_DIR = 'Result_log/train_stru-01'+ '_imsz-%d_bz-%d_t1-'%(IMAGE_SIZE,BATCH_SIZE)
+LOG_VAL_DIR = 'Result_log/eval_stru-01'+ '_imsz-%d_bz-%d_t1-'%(IMAGE_SIZE,BATCH_SIZE)
 data_dir = '../../Data/'
+
 
 ## Imagenet structure
 # def inference(images):
@@ -540,19 +541,25 @@ def evaluate_once():
 
 #
 # #
+starttime1 = datetime.datetime.now()
 print('*****Training**************************************')
 train_n_eval()
-
+endtime1 = datetime.datetime.now()
+print('Training total time: ',endtime1-starttime1)
 print('*****Evaluation************************************')
 print("Check after training:")
 # evaluate_once()
 
+starttime2 = datetime.datetime.now()
 #
 # predict_all,true_all=confusion_matrix()
 # save_dir = 'C:\\Users\\bzhang25\\Google Drive\\CNN-testing\\aa'
 # scio.savemat(save_dir, {'predict':predict_all,'true':true_all})
 predict_all,true_all=evaluate_once()
-save_dir = '/Result/cnnResult_data6_testGroup6_ita6000_15-3'
+save_dir = 'Result/test_result_Stru-01'
 scio.savemat(save_dir, {'predict':predict_all,'true':true_all})
+endtime2 = datetime.datetime.now()
+print('Testing total time: ',endtime2-starttime2)
+
 
 
