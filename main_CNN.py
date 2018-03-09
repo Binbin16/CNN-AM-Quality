@@ -27,6 +27,7 @@ NUM_CLASSES = 3
 n_test =3900 #3834 #CNN1-300: 1500
 
 CLASSES_NAMES =['Undermelt','JustRight', 'Overmelt']
+ 
 
 LOG_TRAIN_DIR = 'Result_log/train'+ '_imsz_%d_bz_%d_t1_'%(IMAGE_SIZE,BATCH_SIZE)
 LOG_VAL_DIR = 'Result_log/eval'+ '_imsz_%d_bz_%d_t1_'%(IMAGE_SIZE,BATCH_SIZE)
