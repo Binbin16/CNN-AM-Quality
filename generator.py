@@ -38,7 +38,7 @@ class DataGenerator():
         if self.shuffle == True:
             np.random.shuffle(indexes)
 
-            return indexes
+        return indexes
         
     def __data_generation(self, labels, list_IDs_temp):
         'Generates data of batch_size samples' # X : (n_samples, v_size, v_size, v_size, n_channels)
@@ -54,5 +54,5 @@ class DataGenerator():
 
             # Store class
             y[i] = labels[ID]
-
-            return X, y
+        
+        return X, y

@@ -7,6 +7,7 @@ out_train_dir = '../../input/train/'
 out_test_dir = '../../input/test/'
 
 num_batches = 5
+num_classes = 3
 
 train_files = [data_dir + 'data_batch_' + str(ii) + '.bin' for ii in range(1, num_batches+1)]
 test_file = data_dir + 'test_batch.bin'
@@ -27,7 +28,7 @@ for filepath in train_files:
     batch_size = data.size // row_bytes
     data = np.reshape(data, (batch_size, -1))
     
-    y = to_categorical(data[:, 0])
+    y = to_categorical(data[:, 0], num_classes = num_classes)
     X = np.transpose(np.reshape(data[:, 1:], [batch_size, image_shape[2], image_shape[0], image_shape[1]]), (0, 2, 3, 1)) / 255
     
     keys = range(ID, ID+batch_size) # create unique IDs as keys
@@ -55,7 +56,7 @@ data = np.fromfile(f, dtype=np.uint8)
 batch_size = data.size // row_bytes
 data = np.reshape(data, (batch_size, -1))
 
-y = to_categorical(data[:, 0])
+y = to_categorical(data[:, 0], num_classes = num_classes)
 X = np.transpose(np.reshape(data[:, 1:], [batch_size, image_shape[2], image_shape[0], image_shape[1]]), (0, 2, 3, 1)) / 255
 
 keys = range(ID, ID+batch_size) # create unique IDs as keys
