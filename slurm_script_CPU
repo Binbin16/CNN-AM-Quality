@@ -1,17 +1,17 @@
 #!/bin/sh
-#SBATCH --partition=gpu
-#SBATCH --time=30:00:00
+#SBATCH --partition=general-compute
+#SBATCH --time=20:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=12
 #SBATCH --cpus-per-task=1
-#SBATCH --constraint=CPU-X5650
+#SBATCH --constraint=CPU-E5645
 #SBATCH --mem=48000
 # Memory per node specification is in MB. It is optional. 
 # The default limit is 3GB per core.
-#SBATCH --job-name="Model-03-GPU-1-12-job"
-#SBATCH --output=Result/Model-03-GPU-1-12.out
+#SBATCH --job-name="Model-07-CPU-1-12-job"
+#SBATCH --output=Result/Model-07-CPU-1-12.out
 #SBATCH --mail-user=bzhang25@buffalo.edu
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=None
 #SBATCH --requeue
 #Specifies that the job will be requeued after a node failure.
 #The default is that the job will not be requeued.
