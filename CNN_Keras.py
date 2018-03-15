@@ -15,7 +15,7 @@ import tensorflow as tf
 from generator import DataGenerator
 
 # PARAMETERS
-EPOCHS = 5 # Number of iterations on the dataset
+EPOCHS = 50 # Number of iterations on the dataset
 LR_VEC = [0.001]
 BATCH_SIZE = 512
 VALD_FRAC = 0.1
@@ -62,7 +62,6 @@ def network(input_shape = IMAGE_SHAPE, output_size = NUM_CLASSES, LR = 0.0001):
     
     model = Model(inputs=inputLayer, outputs=outputLayer)
     
-    #p_model = multi_gpu_model(model, gpus=16)
     adam = Adam(lr = LR)
     model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
     
@@ -84,7 +83,6 @@ K.set_session(sess)
 with open(train_dir + 'labels.pkl', 'rb') as f:
     labels = pickle.load(f)
 
-print(len(labels))
 IDs = list(labels.keys())
 np.random.shuffle(IDs)
 
@@ -108,13 +106,16 @@ validation_generator = DataGenerator(train_dir,
                                      augment=True).generate(labels,
                                                             partition['validation'])
 
+print('')
+print('*******************************************')
+print('TRAINING...')
+print('')
 # learn model for different learning rates
 vald_accuracy = np.zeros_like(LR_VEC)
 vald_loss = np.zeros_like(LR_VEC)
 for i, lr in enumerate(LR_VEC):
     
-    print('**************************************')
-    print('Running with learning rate ' + str(lr))
+    print('Training with learning rate ' + str(lr))
     
     model = network(LR = lr)
     history = model.fit_generator(generator = training_generator,
@@ -131,13 +132,14 @@ for i, lr in enumerate(LR_VEC):
     
     vald_accuracy[i] = history.history['val_acc'][-1] # save final validation accuracy
     vald_loss[i] = history.history['val_loss'][-1] # save final validation loss
+    
+    # print validation results
+    print('Validation accuracy:', vald_accuracy[i])
+    print('Validation loss:', vald_loss[i])
+    print('')
 
-# print validation results
-print('VALIDATION ACCURACY:')
-print(vald_accuracy)
-print('')
-print('VALIDATION LOSS:')
-print(vald_accuracy)
+print('TRAINING COMPLETE')
+print('*******************************************')
 print('')
 
 ###--------- TESTING ---------###
@@ -145,6 +147,13 @@ print('')
 # find the best LR and load corresponding model : maximum validation accuracy
 mx_i = np.argmax(vald_accuracy)
 model = load_model(result_dir + 'keras_model_' + str(mx_i) + '.h5')
+
+print('Best model found with learning rate ' + str(lr))
+
+print('')
+print('*******************************************')
+print('TESTING...')
+print('')
 
 # read test labels
 with open(test_dir + 'labels.pkl', 'rb') as f:
@@ -164,9 +173,8 @@ test_score = model.evaluate_generator(testing_generator,
                                       steps = len(IDs)//BATCH_SIZE)
 
 # print test results
-print('TEST ACCURACY:')
-print(test_score[1])
+print('Test accuracy:', test_score[1])
+print('Test loss:', test_score[0])
 print('')
-print('TEST LOSS:')
-print(test_score[0])
-print('')
+print('TESTING COMPLETE')
+print('*******************************************')
