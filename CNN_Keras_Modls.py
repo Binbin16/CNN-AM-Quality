@@ -16,12 +16,13 @@ import tensorflow as tf
 from generator import DataGenerator
 
 # PARAMETERS
-Model_ID = '07'
-EPOCHS = 16 # Number of iterations on the dataset
+Model_ID = '22'
+EPOCHS = 200 # Number of iterations on the dataset
 LR_VEC = [0.001] #
 BATCH_SIZE = 512
 VALD_FRAC = 0.1
 num_cores = 12
+Test_ID = '03L'
 
 print('**PARAMETERS**********')
 print('Model: \t\t', Model_ID)
@@ -32,21 +33,24 @@ print('VALD_FRAC:\t', VALD_FRAC)
 print('Num cores:\t', num_cores,'\n')
 
 print('BN: \t\t YYN')
-print('L2 regul:\t Y')
-print('Dropout:\t N')
-print('Conv1 filter:\t 3x3,3x3')
+print('L2 regul:\t Y0.1Y0.1')
+print('Dropout:\t Y0.5Y0.5')
+print('Conv1 filter:\t 3x3/16, 3x3/32, 256,32')
+
+print('Test_ID:\t\t', Test_ID)
 
 
 
-IMAGE_SHAPE = (300, 300, 3)
+IMAGE_SHAPE = (50, 50, 1)
 NUM_CLASSES = 3
+print('Image size: \t\t', IMAGE_SHAPE)
 
 CLASS_NAMES =['Undermelt', 'JustRight', 'Overmelt']
 
 
 
-train_dir = '../../input/train/'
-test_dir = '../../input/test/'
+train_dir = '../../input/train_50/'
+test_dir = '../../input/test_50/'
 result_dir = 'Result/Result_'+ Model_ID + '/'
 
 
@@ -61,21 +65,27 @@ def network(input_shape = IMAGE_SHAPE, output_size = NUM_CLASSES, LR = 0.0001):
     inputLayer = Input(shape = input_shape)
     
     layer = BatchNormalization()(inputLayer)
-    #layer = Convolution2D(16, (5, 5), padding='same', activation='relu', kernel_regularizer=l2(0.01) )(layer) #kernel_regularizer=l2(0.01)
-    #layer = MaxPooling2D(pool_size=(3, 3), strides=(3, 3), padding='same')(layer)
+    
+    layer = Convolution2D(16, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.1))(layer) #kernel_regularizer=l2(0.01)
+    layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
+    layer = BatchNormalization()(layer)
+    layer = Dropout(0.5)(layer)
+    
+    layer = Convolution2D(32, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.1))(layer)
+    layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
+    layer = BatchNormalization()(layer)
+    layer = Dropout(0.5)(layer)
+    
+    #layer = Convolution2D(64, (3, 3), padding='same', activation='relu')(layer)
+    #layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
     #layer = BatchNormalization()(layer)
-    layer = Convolution2D(32, (3, 3), padding='same', activation='relu', kernel_regularizer=l2(0.01))(layer)
-    layer = MaxPooling2D(pool_size=(3, 3), strides=(3, 3), padding='same')(layer)
-    layer = BatchNormalization()(layer)
-    layer = Convolution2D(64, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.01))(layer)
-    layer = MaxPooling2D(pool_size=(3, 3), strides=(3, 3), padding='same')(layer)
-    layer = BatchNormalization()(layer)
+    #layer = Dropout(0.25)(layer)
     
     layer = Flatten()(layer)
-    layer = Dense(384, activation='relu',kernel_regularizer=l2(0.01))(layer)  
-    #layer = Dropout(0.25)(layer)
-    layer = Dense(64, activation='relu',kernel_regularizer=l2(0.01))(layer)
-    #layer = Dropout(0.25)(layer)
+    layer = Dense(256, activation='relu',kernel_regularizer=l2(0.1))(layer)  
+    layer = Dropout(0.5)(layer)
+    layer = Dense(32, activation='relu',kernel_regularizer=l2(0.1))(layer)
+    layer = Dropout(0.5)(layer)
     
     outputLayer = Dense(output_size, activation='softmax')(layer)
     
@@ -160,10 +170,10 @@ for i, lr in enumerate(LR_VEC):
                                   verbose = 0)
     
     # save model and results
-    model.save(result_dir + 'keras_Model-'+ Model_ID + '_' + str(i) + '.h5')
-    print('Result Directory: \t', result_dir + 'keras_Model-'+ Model_ID + '_' + str(i) + '.h5')
-    print('Result Directory: \t', result_dir + 'keras_Model-'+ Model_ID + '_' + str(i) + 'history.pkl')
-    with open(result_dir + 'keras_Model-'+ Model_ID + '_' + str(i) + 'history.pkl', 'wb') as f:
+    model.save( result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '.h5')
+    print('Result Directory: \t', result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '.h5')
+    print('Result Directory: \t', result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '_history.pkl')
+    with open(result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '_history.pkl', 'wb') as f:
         pickle.dump(history.history, f)
     
     #print(history.history.keys())
@@ -180,7 +190,7 @@ starttime2 = datetime.datetime.now()
 
 # find the best LR and load corresponding model : maximum validation accuracy
 mx_i = np.argmax(vald_accuracy)
-model = load_model(result_dir + 'keras_Model-'+ Model_ID + '_' + str(mx_i) + '.h5')
+model = load_model( result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '.h5')
 
 # read test labels
 with open(test_dir + 'labels.pkl', 'rb') as f:
