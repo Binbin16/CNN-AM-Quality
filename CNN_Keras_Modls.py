@@ -12,17 +12,18 @@ from keras.layers.normalization import BatchNormalization
 from keras import backend as K
 
 import tensorflow as tf
+from tensorflow.python.client import device_lib
   
 from generator import DataGenerator
 
 # PARAMETERS
-Model_ID = '22'
-EPOCHS = 200 # Number of iterations on the dataset
+Model_ID = '2L'
+EPOCHS = 700 # Number of iterations on the dataset
 LR_VEC = [0.001] #
 BATCH_SIZE = 512
 VALD_FRAC = 0.1
 num_cores = 12
-Test_ID = '03L'
+Test_ID = '1'
 
 print('**PARAMETERS**********')
 print('Model: \t\t', Model_ID)
@@ -33,7 +34,7 @@ print('VALD_FRAC:\t', VALD_FRAC)
 print('Num cores:\t', num_cores,'\n')
 
 print('BN: \t\t YYN')
-print('L2 regul:\t Y0.1Y0.1')
+print('L2 regul:\t Y0.01N')
 print('Dropout:\t Y0.5Y0.5')
 print('Conv1 filter:\t 3x3/16, 3x3/32, 256,32')
 
@@ -66,25 +67,25 @@ def network(input_shape = IMAGE_SHAPE, output_size = NUM_CLASSES, LR = 0.0001):
     
     layer = BatchNormalization()(inputLayer)
     
-    layer = Convolution2D(16, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.1))(layer) #kernel_regularizer=l2(0.01)
+    layer = Convolution2D(16, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.01))(layer) #kernel_regularizer=l2(0.01)
     layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
     layer = BatchNormalization()(layer)
     layer = Dropout(0.5)(layer)
     
-    layer = Convolution2D(32, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.1))(layer)
+    layer = Convolution2D(32, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.01))(layer)
     layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
     layer = BatchNormalization()(layer)
     layer = Dropout(0.5)(layer)
     
-    #layer = Convolution2D(64, (3, 3), padding='same', activation='relu')(layer)
+    #layer = Convolution2D(64, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.01))(layer)
     #layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
     #layer = BatchNormalization()(layer)
-    #layer = Dropout(0.25)(layer)
+    #layer = Dropout(0.4)(layer)
     
     layer = Flatten()(layer)
-    layer = Dense(256, activation='relu',kernel_regularizer=l2(0.1))(layer)  
+    layer = Dense(256, activation='relu')(layer)  
     layer = Dropout(0.5)(layer)
-    layer = Dense(32, activation='relu',kernel_regularizer=l2(0.1))(layer)
+    layer = Dense(32, activation='relu')(layer)
     layer = Dropout(0.5)(layer)
     
     outputLayer = Dense(output_size, activation='softmax')(layer)
@@ -98,7 +99,7 @@ def network(input_shape = IMAGE_SHAPE, output_size = NUM_CLASSES, LR = 0.0001):
 
 seed = 0
 np.random.seed(seed) # for regenerating results
-tf.set_random_seed(seed)
+#tf.set_random_seed(seed)
 
 # TODO: Tensorflow GPU optimization
 #num_cores = 128
@@ -120,8 +121,8 @@ tf.set_random_seed(seed)
 #config = tf.ConfigProto()
 #config.gpu_options.allow_growth = True
 #sess = tf.Session(config=config)
-from tensorflow.python.client import device_lib
-print(device_lib.list_local_devices())
+
+#print(device_lib.list_local_devices())
 
 config = tf.ConfigProto(intra_op_parallelism_threads=num_cores,
                         allow_soft_placement=True)
@@ -141,25 +142,29 @@ np.random.shuffle(IDs)
 vald_start_index = int(len(IDs) * (1-VALD_FRAC))
 partition = {'train':IDs[:vald_start_index], 'validation':IDs[vald_start_index:]}
 
-print('Train data size: \t\t', len(partition['train']))
-print('Validation data size:\t ', len(partition['validation']))
+#print('Train data size: \t\t', len(partition['train']))
+#print('Validation data size:\t ', len(partition['validation']))
 
 # create batch data generators
 training_generator = DataGenerator(train_dir,
                                   input_shape=IMAGE_SHAPE,
                                   output_size=NUM_CLASSES,
-                                  batch_size=BATCH_SIZE).generate(labels, partition['train'])
+                                  batch_size=BATCH_SIZE,
+                                  shuffle=True,
+                                  augment=True).generate(labels, partition['train'])
 validation_generator = DataGenerator(train_dir,
                                   input_shape=IMAGE_SHAPE,
                                   output_size=NUM_CLASSES,
-                                  batch_size=BATCH_SIZE).generate(labels, partition['validation'])
+                                  batch_size=BATCH_SIZE,
+                                  shuffle=False,
+                                  augment=True).generate(labels, partition['validation'])
 
 # learn model for different learning rates
 vald_accuracy = np.zeros_like(LR_VEC)
 for i, lr in enumerate(LR_VEC):
     
     
-    print('Running with learning rate ' + str(lr))
+    print('Training with learning rate ' + str(lr))
     
     model = network(LR = lr)
     history = model.fit_generator(generator = training_generator,
@@ -186,7 +191,7 @@ print('VALIDATION ACCURACY:\t',vald_accuracy ,'\n')
 endtime1 = datetime.datetime.now()
 
 ###--------- TESTING ---------###
-starttime2 = datetime.datetime.now()
+
 
 # find the best LR and load corresponding model : maximum validation accuracy
 mx_i = np.argmax(vald_accuracy)
@@ -201,13 +206,20 @@ IDs = list(labels.keys())
 testing_generator = DataGenerator(test_dir,
                                   input_shape=IMAGE_SHAPE,
                                   output_size=NUM_CLASSES,
-                                  batch_size=BATCH_SIZE).generate(labels, IDs)
+                                  batch_size=BATCH_SIZE,
+                                  shuffle=False,
+                                  augment=False).generate(labels, IDs)
 
 # evaluate the model on test dataset
 test_score = model.evaluate_generator(testing_generator,
                                       steps = len(IDs)//BATCH_SIZE)
+test_pred = model.predict_generator(testing_generator,
+                                      steps = len(IDs)//BATCH_SIZE)
+
 print('TEST SCORE:\t\t',test_score ,'\n')
 
-endtime2 = datetime.datetime.now()
 print('Train and Val time:\t ', endtime1-starttime1)
-print('Testing time:\t\t ', endtime2-starttime2)
+
+
+np.savetxt(('Test_data_result_M-'+ Model_ID + '_T-'+ Test_ID +'.csv'), test_pred, delimiter=",")
+
