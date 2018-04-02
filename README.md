@@ -5,6 +5,7 @@ Objective: The project proposes a deep CNN that takes real metal AM product imag
 Project under construction!
 
 ### Dependencies
-- Python 3.5
+- Python 3.6.3
 - NumPy
-- Tensorflow 1.1.0
+- Tensorflow 1.4.1
+- Keras 2.0.4

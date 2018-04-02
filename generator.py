@@ -63,9 +63,9 @@ class DataGenerator():
                 im = pickle.load(f)
                 
             if (self.input_shape[2] == 1):
-                X[i, :, :, 0] = im
+                X[i, :, :, 0] = im # for input size 50x50x1
             else:
-                X[i, :, :, :] = im
+                X[i, :, :, :] = im # for input size 300x300x3
                 
             # Store class
             y[i] = labels[ID]
