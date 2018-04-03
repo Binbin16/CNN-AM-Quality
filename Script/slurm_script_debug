@@ -9,8 +9,8 @@
 #SBATCH --mem=48000
 # Memory per node specification is in MB. It is optional. 
 # The default limit is 3GB per core.
-#SBATCH --job-name="M-2L-test-job"
-#SBATCH --output=Model-2L-test.out
+#SBATCH --job-name="M2L-T01-debugGPU"
+#SBATCH --output=M2L-T01-debugGPU.out
 #SBATCH --mail-user=bzhang25@buffalo.edu
 #SBATCH --mail-type=None
 #SBATCH --requeue

@@ -2,9 +2,9 @@ import numpy as np
 import pickle
 from keras.utils import to_categorical
 
-data_dir = '../../Data/'
-out_train_dir = '../../input/train/'
-out_test_dir = '../../input/test/'
+data_dir = '../Data/'
+out_train_dir = '../Data/input/train/'
+out_test_dir = '../Data/input/test/'
 
 num_batches = 5
 num_classes = 3

@@ -1,8 +1,9 @@
 # My files
-Result/
-Result_log/
+CNN_models/
+Script/Result/
+Script/CNN_Keras_Modls_2L_CV.py
+Data/
 *.out
-*.mat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

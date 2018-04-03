@@ -1,17 +1,18 @@
 #!/bin/sh
-#SBATCH --partition=general-compute
-#SBATCH --time=20:00:00
+#SBATCH --partition=gpu
+#SBATCH --time=30:00:00
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=12
-#SBATCH --cpus-per-task=1
-#SBATCH --constraint=CPU-E5645
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=12
+#SBATCH --constraint=CPU-X5650
+#SBATCH --gres=gpu:2
 #SBATCH --mem=48000
 # Memory per node specification is in MB. It is optional. 
 # The default limit is 3GB per core.
-#SBATCH --job-name="Model-07-CPU-1-12-job"
-#SBATCH --output=Result/Model-07-CPU-1-12.out
+#SBATCH --job-name="M2L-T01-GPU"
+#SBATCH --output=Result/M2L-T01-GPU.out
 #SBATCH --mail-user=bzhang25@buffalo.edu
-#SBATCH --mail-type=None
+#SBATCH --mail-type=ALL
 #SBATCH --requeue
 #Specifies that the job will be requeued after a node failure.
 #The default is that the job will not be requeued.
@@ -35,6 +36,6 @@ source activate tensorflow-py36
 
 echo "Starting job..."
 
-python CNN_Keras_Modls.py
+python CNN_Keras_Modls_2L.py
 
 echo "All Done!"

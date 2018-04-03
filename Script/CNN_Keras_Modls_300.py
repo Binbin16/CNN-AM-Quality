@@ -17,13 +17,13 @@ from tensorflow.python.client import device_lib
 from generator import DataGenerator
 
 # PARAMETERS
-Model_ID = '2L'
-EPOCHS = 700 # Number of iterations on the dataset
+Model_ID = '300'
+EPOCHS = 16 # Number of iterations on the dataset
 LR_VEC = [0.001] #
-BATCH_SIZE = 512
+BATCH_SIZE = 256
 VALD_FRAC = 0.1
 num_cores = 12
-Test_ID = '1'
+Test_ID = 'GPU'
 
 print('**PARAMETERS**********')
 print('Model: \t\t', Model_ID)
@@ -34,15 +34,14 @@ print('VALD_FRAC:\t', VALD_FRAC)
 print('Num cores:\t', num_cores,'\n')
 
 print('BN: \t\t YYN')
-print('L2 regul:\t Y0.01N')
-print('Dropout:\t Y0.5Y0.5')
-print('Conv1 filter:\t 3x3/16, 3x3/32, 256,32')
+print('L2 regul:\t NN')
+print('Dropout:\t NN')
+print('Conv1 filter:\t 5x5/16, 5x5/32, 5x5/64, 512,64')
 
 print('Test_ID:\t\t', Test_ID)
 
 
-
-IMAGE_SHAPE = (50, 50, 1)
+IMAGE_SHAPE = (300, 300, 3)
 NUM_CLASSES = 3
 print('Image size: \t\t', IMAGE_SHAPE)
 
@@ -50,8 +49,8 @@ CLASS_NAMES =['Undermelt', 'JustRight', 'Overmelt']
 
 
 
-train_dir = '../../input/train_50/'
-test_dir = '../../input/test_50/'
+train_dir = '../Data/input/train/'
+test_dir = '../Data/input/test/'
 result_dir = 'Result/Result_'+ Model_ID + '/'
 
 
@@ -67,26 +66,26 @@ def network(input_shape = IMAGE_SHAPE, output_size = NUM_CLASSES, LR = 0.0001):
     
     layer = BatchNormalization()(inputLayer)
     
-    layer = Convolution2D(16, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.01))(layer) #kernel_regularizer=l2(0.01)
+    layer = Convolution2D(16, (5, 5), padding='same', activation='relu')(layer) #kernel_regularizer=l2(0.01)
     layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
     layer = BatchNormalization()(layer)
-    layer = Dropout(0.5)(layer)
+    #layer = Dropout(0.5)(layer)
     
-    layer = Convolution2D(32, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.01))(layer)
+    layer = Convolution2D(32, (5, 5), padding='same', activation='relu')(layer)
     layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
     layer = BatchNormalization()(layer)
-    layer = Dropout(0.5)(layer)
+    #layer = Dropout(0.5)(layer)
     
-    #layer = Convolution2D(64, (3, 3), padding='same', activation='relu',kernel_regularizer=l2(0.01))(layer)
-    #layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
-    #layer = BatchNormalization()(layer)
+    layer = Convolution2D(64, (5, 5), padding='same', activation='relu',kernel_regularizer=l2(0.01))(layer)
+    layer = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(layer)
+    layer = BatchNormalization()(layer)
     #layer = Dropout(0.4)(layer)
     
     layer = Flatten()(layer)
-    layer = Dense(256, activation='relu')(layer)  
-    layer = Dropout(0.5)(layer)
-    layer = Dense(32, activation='relu')(layer)
-    layer = Dropout(0.5)(layer)
+    layer = Dense(512, activation='relu')(layer)  
+    #layer = Dropout(0.5)(layer)
+    layer = Dense(64, activation='relu')(layer)
+    #layer = Dropout(0.5)(layer)
     
     outputLayer = Dense(output_size, activation='softmax')(layer)
     
@@ -100,29 +99,6 @@ def network(input_shape = IMAGE_SHAPE, output_size = NUM_CLASSES, LR = 0.0001):
 seed = 0
 np.random.seed(seed) # for regenerating results
 #tf.set_random_seed(seed)
-
-# TODO: Tensorflow GPU optimization
-#num_cores = 128
-#GPU=False
-#CPU=True
-#if GPU:
-#    num_GPU = 2
-#    num_CPU = 1
-#if CPU:
-#    num_CPU = 16
-#    num_GPU = 0
-#
-#config = tf.ConfigProto(intra_op_parallelism_threads=num_cores,\
-#        inter_op_parallelism_threads=num_cores, allow_soft_placement=True,\
-#        device_count = {'CPU' : num_CPU, 'GPU' : num_GPU})
-#sess = tf.Session(config=config)
-#K.set_session(sess)
-
-#config = tf.ConfigProto()
-#config.gpu_options.allow_growth = True
-#sess = tf.Session(config=config)
-
-#print(device_lib.list_local_devices())
 
 config = tf.ConfigProto(intra_op_parallelism_threads=num_cores,
                         allow_soft_placement=True)
@@ -175,10 +151,10 @@ for i, lr in enumerate(LR_VEC):
                                   verbose = 0)
     
     # save model and results
-    model.save( result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '.h5')
-    print('Result Directory: \t', result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '.h5')
-    print('Result Directory: \t', result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '_history.pkl')
-    with open(result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '_history.pkl', 'wb') as f:
+    model.save( result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  + '.h5')
+    print('Result Directory: \t', result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID + '.h5')
+    print('Result Directory: \t', result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID + '_history.pkl')
+    with open(result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  + '_history.pkl', 'wb') as f:
         pickle.dump(history.history, f)
     
     #print(history.history.keys())
@@ -195,7 +171,7 @@ endtime1 = datetime.datetime.now()
 
 # find the best LR and load corresponding model : maximum validation accuracy
 mx_i = np.argmax(vald_accuracy)
-model = load_model( result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  +'_' + str(i) + '.h5')
+model = load_model( result_dir + 'keras_Model-'+ Model_ID + '_T-'+ Test_ID  + '.h5')
 
 # read test labels
 with open(test_dir + 'labels.pkl', 'rb') as f:
@@ -221,5 +197,5 @@ print('TEST SCORE:\t\t',test_score ,'\n')
 print('Train and Val time:\t ', endtime1-starttime1)
 
 
-np.savetxt(('Test_data_result_M-'+ Model_ID + '_T-'+ Test_ID +'.csv'), test_pred, delimiter=",")
+#np.savetxt(( result_dir +'Test_data_result_M-'+ Model_ID + '_T-'+ Test_ID +'.csv'), test_pred, delimiter=",")
 

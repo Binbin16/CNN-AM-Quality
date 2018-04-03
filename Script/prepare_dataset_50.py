@@ -2,10 +2,10 @@ import numpy as np
 import pickle
 from PIL import Image
 
-in_train_dir = '../../input/train/'
-in_test_dir = '../../input/test/'
-out_train_dir = '../../input/train_50/'
-out_test_dir = '../../input/test_50/'
+in_train_dir = '../Data/input/train/'
+in_test_dir = '../Data/input/test/'
+out_train_dir = '../Data/input/train_50/'
+out_test_dir = '../Data/input/test_50/'
 
 image_shape_in = (300, 300, 3)
 image_shape_out = (50, 50, 1)
