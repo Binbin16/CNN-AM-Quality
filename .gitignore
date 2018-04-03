@@ -1,8 +1,9 @@
 # My files
 CNN_models/
-Script/Result/
+Script/MyResult/
 Script/CNN_Keras_Modls_2L_CV.py
-Data/
+*.bin
+*.pkl
 *.out
 
 # Byte-compiled / optimized / DLL files
